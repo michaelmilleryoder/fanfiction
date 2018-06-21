@@ -78,25 +78,37 @@ class Scraper:
         result = requests.get(url)
         html = result.content
         soup = BeautifulSoup(html, self.parser)
-        pre_story_links = soup.find(id='pre_story_links').find_all('a')
-        author_id = int(re.search(r"var userid = (.*);", str(soup)).groups()[0]);
-        title = re.search(r"var title = (.*);", str(soup)).groups()[0];
+        pre_story_links = soup.find(id='pre_story_links')
+        if pre_story_links is None:
+            return None
+        else:
+            pre_story_links = soup.find(id='pre_story_links').find_all('a')
+        #author_id = re.search(r"var userid = (.*);", str(soup))
+        author_id = re.search(r"var userid = (.*?);", str(html))
+        if author_id is None:
+            pdb.set_trace()
+        else:
+            author_id = int(author_id.groups()[0]);
+        #title = re.search(r"var title = (.*);", str(soup)).groups()[0];
+        title = re.search(r"var title = (.*?);", str(html)).groups()[0];
         title = unquote_plus(title)[1:-1]
         metadata_div = soup.find(id='profile_top')
         times = metadata_div.find_all(attrs={'data-xutime':True})
         metadata_text = metadata_div.find(class_='xgray xcontrast_txt').text
         metadata_parts = metadata_text.split('-')
         genres = self.get_genres(metadata_parts[2].strip())
+
         metadata = {
             'id': story_id,
-            'canon_type': pre_story_links[0].text,
-            'canon': pre_story_links[1].text,
+            'canon': pre_story_links[-1].text,
             'author_id': author_id,
             'title': title,
             'lang': metadata_parts[1].strip(),
             'published': int(times[-1]['data-xutime']),
             'genres': genres
         }
+        if len(pre_story_links) > 1:
+            metadata['canon_type'] = pre_story_links[0].text,
         if len(times) > 1:
             metadata['updated'] = int(times[0]['data-xutime'])
         for parts in metadata_parts:
@@ -119,6 +131,8 @@ class Scraper:
 
     def scrape_story(self, story_id, keep_html=False):
         metadata = self.scrape_story_metadata(story_id)
+        if metadata is None:
+            return None # Error--story not found
 
         metadata['chapters'] = {}
         metadata['reviews'] = {}
@@ -148,8 +162,10 @@ class Scraper:
         html = result.content
         soup = BeautifulSoup(html, self.parser)
         chapter = soup.find(class_='storytext')
+        if chapter is None:
+            return ''
         if not keep_html:
-            chapter_text = chapter.get_text(' ').encode('utf8')
+            chapter_text = chapter.get_text('\n').encode('utf8')
         return chapter_text
 
     def scrape_reviews_for_chapter(self, story_id, chapter_id):
@@ -165,9 +181,14 @@ class Scraper:
         result = requests.get(url)
         html = result.content
         soup = BeautifulSoup(html, self.parser)
-        reviews_table = soup.find(class_='table-striped').tbody
-        reviews_tds = reviews_table.find_all('td')
+        reviews_table = soup.find(class_='table-striped')
         reviews = []
+
+        if reviews_table is None:
+            return reviews
+        else:
+            reviews_table = reviews_table.tbody
+        reviews_tds = reviews_table.find_all('td')
 
         if len(reviews_tds) == 1 and reviews_tds[0].string == 'No Reviews found.':
             return reviews
