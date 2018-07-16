@@ -23,9 +23,10 @@ def save_stories(scraper, ids, out_dirpath, restart=None):
 
     metadata_out_fpath = os.path.join(out_dirpath, 'metadata.csv')
     columns = ["id", "canon_type", 'canon', 'author_id', 'title', 'updated', 'published', 'lang', 'genres', 'num_reviews', 'num_favs', 'num_follows', 'num_words', 'rated']
-    with open(metadata_out_fpath, 'w') as f:
-        w = csv.writer(f)
-        w.writerow(columns)
+    if not os.path.exists(metadata_out_fpath):
+        with open(metadata_out_fpath, 'w') as f:
+            w = csv.writer(f)
+            w.writerow(columns)
 
     story_out_dirpath = os.path.join(out_dirpath, 'stories')
     if not os.path.exists(story_out_dirpath):
@@ -36,7 +37,7 @@ def save_stories(scraper, ids, out_dirpath, restart=None):
         ids = ids[ids.index(restart):]
 
     for i in tqdm(ids):
-        tqdm.write("Scraping story {}".format(i))
+        tqdm.write("Scraping story {}...".format(i))
 
         #try:
         #    story_metadata = scraper.scrape_story(i)
@@ -58,7 +59,10 @@ def save_stories(scraper, ids, out_dirpath, restart=None):
         story_out_fpath = os.path.join(story_out_dirpath, "{}.txt".format(story_metadata['id']))
         with open(story_out_fpath, 'w') as f:
             for c, story in story_metadata['chapters'].items():
-                f.write(str(story, 'utf-8') + '\n\n')
+                if not isinstance(story, bytes):
+                    pdb.set_trace()
+                else:
+                    f.write(str(story, 'utf-8') + '\n\n')
 
 
 def main():

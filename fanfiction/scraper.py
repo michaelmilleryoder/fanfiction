@@ -75,7 +75,12 @@ class Scraper:
             -rated: the story's rating.
         """
         url = '{0}/s/{1}'.format(self.base_url, story_id)
-        result = requests.get(url)
+        try:
+            result = requests.get(url)
+        except (requests.exceptions.ChunkedEncodingError,
+                requests.exceptions.ConnectionError) as e:
+            pdb.set_trace()
+            return None
         html = result.content
         soup = BeautifulSoup(html, self.parser)
         pre_story_links = soup.find(id='pre_story_links')
@@ -158,12 +163,15 @@ class Scraper:
 
     def scrape_chapter(self, story_id, chapter_id, keep_html=False):
         url = '{0}/s/{1}/{2}'.format(self.base_url, story_id, chapter_id)
-        result = requests.get(url)
+        try:
+            result = requests.get(url)
+        except requests.exceptions.SSLError:
+            return b''
         html = result.content
         soup = BeautifulSoup(html, self.parser)
         chapter = soup.find(class_='storytext')
         if chapter is None:
-            return ''
+            return b''
         if not keep_html:
             chapter_text = chapter.get_text('\n').encode('utf8')
         return chapter_text
@@ -178,7 +186,10 @@ class Scraper:
             the timestamp of the review, and the text of the review.
         """
         url = '{0}/r/{1}/{2}'.format(self.base_url, story_id, chapter_id)
-        result = requests.get(url)
+        try:
+            result = requests.get(url)
+        except ssl.SSLError:
+            return []
         html = result.content
         soup = BeautifulSoup(html, self.parser)
         reviews_table = soup.find(class_='table-striped')
@@ -203,6 +214,8 @@ class Scraper:
             if time is not None:
                 time = int(time['data-xutime'])
 
+            if review_td.div is None:
+               continue 
             review = {
                 'time': time,
                 'user_id': user_id,
