@@ -22,7 +22,7 @@ def load_story_ids(fpath):
 def save_stories(scraper, ids, out_dirpath, restart=None):
 
     metadata_out_fpath = os.path.join(out_dirpath, 'metadata.csv')
-    columns = ["id", "canon_type", 'canon', 'author_id', 'title', 'updated', 'published', 'lang', 'genres', 'num_reviews', 'num_favs', 'num_follows', 'num_words', 'rated', 'num_chapters']
+    columns = ["id", "canon_type", 'canon', 'author_id', 'title', 'updated', 'published', 'lang', 'genres', 'num_reviews', 'num_favs', 'num_follows', 'num_words', 'rated', 'num_chapters', 'chapter_names']
     if not os.path.exists(metadata_out_fpath):
         with open(metadata_out_fpath, 'w') as f:
             w = csv.writer(f)
