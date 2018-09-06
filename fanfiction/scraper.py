@@ -139,10 +139,15 @@ class Scraper:
         if metadata is None:
             return None # Error--story not found
 
+        if "chapters" in metadata:
+            num_chapters = len(metadata['chapters'])
+        if "num_chapters" in metadata:
+            num_chapters = int(metadata['num_chapters'])
+        else:
+            num_chapters = 1
+
         metadata['chapters'] = {}
         metadata['reviews'] = {}
-        #num_chapters = metadata['num_chapters']
-        num_chapters = len(metadata['chapters'])
         # rate limit to follow fanfiction.net TOS
         time.sleep(self.rate_limit)
 

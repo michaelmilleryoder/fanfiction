@@ -22,7 +22,7 @@ def load_story_ids(fpath):
 def save_stories(scraper, ids, out_dirpath, restart=None):
 
     metadata_out_fpath = os.path.join(out_dirpath, 'metadata.csv')
-    columns = ["id", "canon_type", 'canon', 'author_id', 'title', 'updated', 'published', 'lang', 'genres', 'num_reviews', 'num_favs', 'num_follows', 'num_words', 'rated']
+    columns = ["id", "canon_type", 'canon', 'author_id', 'title', 'updated', 'published', 'lang', 'genres', 'num_reviews', 'num_favs', 'num_follows', 'num_words', 'rated', 'num_chapters']
     if not os.path.exists(metadata_out_fpath):
         with open(metadata_out_fpath, 'w') as f:
             w = csv.writer(f)
@@ -56,9 +56,9 @@ def save_stories(scraper, ids, out_dirpath, restart=None):
             w.writerow([story_metadata.get(col, '') for col in columns])
 
         # Save story
-        story_out_fpath = os.path.join(story_out_dirpath, "{}.txt".format(story_metadata['id']))
-        with open(story_out_fpath, 'w') as f:
-            for c, story in story_metadata['chapters'].items():
+        for c, story in story_metadata['chapters'].items():
+            story_out_fpath = os.path.join(story_out_dirpath, "{}_{}.txt".format(story_metadata['id'], str(c).zfill(4)))
+            with open(story_out_fpath, 'w') as f:
                 if not isinstance(story, bytes):
                     pdb.set_trace()
                 else:
