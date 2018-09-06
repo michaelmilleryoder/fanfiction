@@ -102,16 +102,20 @@ class Scraper:
         metadata_text = metadata_div.find(class_='xgray xcontrast_txt').text
         metadata_parts = metadata_text.split('-')
         genres = self.get_genres(metadata_parts[2].strip())
-        chapters = soup.find(id='chap_select').find_all("option")
-        chapter_names = []
-        omit = 0
-        while len(chapters) > 0:
-            ch = chapters.pop()
-            if omit > 0:
-                chapter_names.insert(0,ch.text[0:-omit])
-            else:
-                chapter_names.insert(0,ch.text)
-            omit = len(ch.text)
+        try:
+            chapters = soup.find(id='chap_select').find_all("option")
+            chapter_names = []
+            omit = 0
+            while len(chapters) > 0:
+                ch = chapters.pop()
+                if omit > 0:
+                    chapter_names.insert(0,ch.text[0:-omit])
+                else:
+                    chapter_names.insert(0,ch.text)
+                omit = len(ch.text)
+        except AttributeError:
+            chapter_names=[title]
+             
 
         metadata = {
             'id': story_id,
