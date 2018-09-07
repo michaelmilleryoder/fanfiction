@@ -96,7 +96,7 @@ class Scraper:
             author_id = int(author_id.groups()[0]);
         #title = re.search(r"var title = (.*);", str(soup)).groups()[0];
         title = re.search(r"var title = (.*?);", str(html)).groups()[0];
-        title = unquote_plus(title)[1:-1]
+        title = unquote_plus(title)[2:-2]
         metadata_div = soup.find(id='profile_top')
         times = metadata_div.find_all(attrs={'data-xutime':True})
         metadata_text = metadata_div.find(class_='xgray xcontrast_txt').text
