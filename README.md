@@ -1,4 +1,6 @@
 # Fanfiction Scraper
+**Update**: Recent changes at [https://github.com/cbogart/fanfiction](https://github.com/cbogart/fanfiction). Follow/fork that repo for updated code.
+
 This repository contains scraping tools for [FanFiction.Net](http://fanfiction.net). These tools are meant to be used for non-commercial, research purposes. They were originally created for the following paper; please cite if you use this software for your research:
 
 Smitha Milli and David Bamman, "Beyond Canonical Texts: A Computational Analysis of Fanfiction" EMNLP 2016.
